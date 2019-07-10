@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"    
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undefined24.ssm.dao.AdminMapper">
+
+<select id="adminLogin" resultType="administrator" parameterType="administrator">
+select * from administrator where adminname=#{adminname} and adminpwd=#{adminpwd}
+</select>
+
+<update id="adminChangePwd" parameterType="administrator" >
+update administrator set adminpwd=#{adminpwd} where adminID = #{adminID}
+</update>
+
+<insert id="addWorker" parameterType="worker" useGeneratedKeys="true">
+insert into worker(workername,workerposition,workersex,workersalary,workercheckcard) values(#{workername},#{workerposition},#{workersex},#{workersalary},#{workercheckcard})
+</insert>
+
+<select id="checkWorker" resultType="worker" parameterType="worker">
+select * from worker where workername=#{workername}
+</select>
+
+<select id="showWorker" resultType="worker">
+select * from worker order by workerID
+</select>
+
+<select id="showEditWorker" parameterType="int" resultType="worker">
+select * from worker where workerID=#{workerID}
+</select>
+
+<update id="editWorker" parameterType="worker">
+update worker
+<set>
+<if test="workername!=null">workername=#{workername},</if>
+<if test="workerposition!=null">workerposition=#{workerposition},</if>
+<if test="workersex!=null">workersex=#{workersex},</if>
+<if test="workersalary!=null">workersalary=#{workersalary},</if>
+<if test="workercheckcard!=null">workercheckcard=#{workercheckcard}</if>
+</set>
+where workerID = #{workerID}
+</update>
+
+<delete id="deleteWorker" parameterType="worker">
+delete from worker where workerID = #{workerID}
+</delete>
+
+<select id="searchWorker" resultType="worker" parameterType="string">
+select * from worker where workerID in
+    (select workerID from worker where workerID REGEXP #{search})
+    union
+select * from worker where workername REGEXP #{search}
+</select>
+
+<select id="showUser" resultType="user">
+select * from user_info order by userID
+</select>
+
+<select id="showEditUser" resultType="user" parameterType="int">
+select * from user_info where userID=#{userID}
+</select>
+
+<select id="searchUser" resultType="user" parameterType="string">
+select * from user_info where userID in
+    (select userID from user_info where userID REGEXP #{search})
+    union
+select * from user_info where nickname REGEXP #{search}
+</select>
+
+<delete id="deleteUser" parameterType="user">
+delete from user_info where userID = #{userID}
+</delete>
+
+<select id="checkUser" resultType="user" parameterType="user">
+select * from user_info where nickname=#{nickname}
+</select>
+
+<update id="editUser" parameterType="user">
+update user_info
+<set>
+<if test="nickname!='' and nickname!=null">nickname=#{nickname},</if>
+<if test="usersex!=null and usersex!=''">usersex=#{usersex},</if>
+<if test="userphone!=null and userphone!=''">userphone=#{userphone},</if>
+<if test="usernumber!=null and usernumber!=''">usernumber=#{usernumber},</if>
+<if test="useraddress!=null and useraddress!=''">useraddress=#{useraddress}</if>
+</set>
+where userID = #{userID}
+</update>
+
+<select id="selectBill" resultType="bill" parameterType="int">
+select * from bill where trackingID=#{trackingID}
+</select>
+
+<select id="goodsManage" resultMap="goodsResult">
+select * from goods_info
+</select>
+<resultMap type="goods" id="goodsResult">
+<id property="trackingID" column="trackingID"/>
+<result property="weight" column="weight"/>
+<result property="type" column="type"/>
+<result property="name" column="name"/>
+<association property="bill" column="trackingID" select="selectBill" javaType="bill"></association>
+</resultMap>
+
+<select id="searchGoods" resultMap="goodsResult" parameterType="string">
+select * from goods_info where trackingID in
+    (select trackingID from goods_info where trackingID REGEXP #{search})
+    union
+select * from goods_info where name REGEXP #{search}
+</select>
+
+<select id="checkGoods" resultType="goods" parameterType="string">
+select * from goods_info where name=#{name}
+</select>
+
+<delete id="deleteReceiver" parameterType="receiver">
+delete from receiver_info where trackingID = #{trackingID}
+</delete>
+
+<delete id="deleteGoods" parameterType="goods">
+delete from goods_info where trackingID = #{trackingID}
+</delete>
+
+<delete id="deleteBill" parameterType="bill">
+delete from bill where trackingID = #{trackingID}
+</delete>
+
+<select id="showEditGoods" resultMap="goodsResult" parameterType="int">
+select * from goods_info where trackingID=#{trackingID}
+</select>
+
+<update id="editGoods" parameterType="goods">
+update goods_info
+<set>
+<if test="name!='' and name!=null">name=#{name},</if>
+<if test="type!='' and type!=null">type=#{type},</if>
+<if test="weight!=null and weight!=''">weight=#{weight}</if>
+</set>
+where trackingID = #{trackingID}
+</update>
+
+<update id="editBill" parameterType="bill">
+update bill
+<set>
+<if test="giveUserID!='' and giveUserID!=null">giveUserID=#{giveUserID},</if>
+<if test="acceptUserID!=null and acceptUserID!=''">acceptUserID=#{acceptUserID},</if>
+<if test="trainnumber!=null and trainnumber!=''">trainnumber=#{trainnumber},</if>
+<if test="cost!=null and cost!=''">cost=#{cost},</if>
+<if test="completetime!=null and completetime!=''">completetime=#{completetime},</if>
+<if test="complete!=null">complete=#{complete}</if>
+</set>
+where trackingID = #{trackingID}
+</update>
+
+</mapper>

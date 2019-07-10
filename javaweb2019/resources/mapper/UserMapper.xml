@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"    
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.undefined24.ssm.dao.UserMapper">
+
+<insert id="Register" parameterType="user" useGeneratedKeys="true">
+insert into user_info(nickname,username,userpwd,userphone,useraddress,usersex,usernumber,picture) values(#{nickname},#{username},#{userpwd},#{userphone},#{useraddress},#{usersex},#{usernumber},#{picture})
+</insert>
+
+<select id="Login" resultType="user" parameterType="user">
+select * from user_info where nickname=#{nickname} and userpwd=#{userpwd}
+</select>
+
+<select id="CheckUser" resultType="user" parameterType="user">
+select * from user_info where nickname=#{nickname}
+</select>
+
+<update id="ChangeProfile" parameterType="user" >
+update user_info
+<set>
+<if test="nickname!=null and nickname!=''">nickname=#{nickname},</if>
+<if test="useraddress!=null and useraddress!=''">useraddress=#{useraddress},</if>
+<if test="userphone!=null and userphone!=''">userphone=#{userphone},</if>
+<if test="userpwd!=null and userpwd!=''">userpwd=#{userpwd},</if>
+<if test="usernumber!=null and usernumber!=''">usernumber=#{usernumber}</if>
+</set>
+where userID = #{userID}
+</update>
+
+<select id="checkUserNumber" parameterType="string" resultType="user">
+select * from user_info where usernumber=#{usernumber}
+</select>
+
+<insert id="addGoods" parameterType="goods" useGeneratedKeys="true">
+insert into goods_info(name,type,weight) values(#{name},#{type},#{weight})
+</insert>
+
+<insert id="addBill" parameterType="bill" useGeneratedKeys="true">
+insert into bill(giveUserID,sendaddress,arriveaddress,cost) values(#{giveUserID},#{sendaddress},#{arriveaddress},#{cost})
+</insert>
+
+<insert id="addReceiver" parameterType="receiver" useGeneratedKeys="true">
+insert into receiver_info(name,phone,address) values(#{name},#{phone},#{address})
+</insert>
+
+<select id="selectGoods" resultType="goods" parameterType="int">
+select * from goods_info where trackingID=#{trackingID}
+</select>
+
+<select id="sendGoods" resultMap="sendResult" parameterType="user">
+select * from bill where giveUserID=#{userID}
+</select>
+<resultMap type="bill" id="sendResult">
+<id property="trackingID" column="trackingID"/>
+<result property="giveUserID" column="giveUserID"/>
+<result property="acceptUserID" column="acceptUserID"/>
+<result property="sendaddress" column="sendaddress"/>
+<result property="arriveaddress" column="arriveaddress"/>
+<result property="trainnumber" column="trainnumber"/>
+<result property="createtime" column="createtime"/>
+<result property="completetime" column="completetime"/>
+<result property="complete" column="complete"/>
+<result property="cost" column="cost"/>
+<association property="goods" column="trackingID" select="selectGoods" javaType="goods"></association>
+</resultMap>
+
+<select id="acceptGoods" resultMap="sendResult" parameterType="user">
+select * from bill where acceptUserID=#{userID}
+</select>
+
+<select id="selectReceiver" resultType="receiver" parameterType="receiver">
+select * from receiver_info where trackingID=#{trackingID} and address REGEXP #{address}
+</select>
+
+<select id="selectReceiverX" resultType="receiver" parameterType="receiver">
+select * from receiver_info where trackingID=#{trackingID}
+</select>
+
+<select id="receiveGoods" resultMap="sendResult" parameterType="Train">
+select * from bill where sendaddress REGEXP #{startpoint} and complete=false and acceptUserID is null
+</select>
+
+<select id="searchBill" resultMap="sendResult" parameterType="string">
+select * from bill where trackingID REGEXP #{search_str}
+</select>
+
+<update id="changeBill" parameterType="bill" >
+update bill
+<set>
+<if test="acceptUserID!=null and acceptUserID!=''">acceptUserID=#{acceptUserID},</if>
+<if test="trainnumber!=null and trainnumber!=''">trainnumber=#{trainnumber}</if>
+</set>
+where trackingID = #{trackingID}
+</update>
+
+<update id="arriveConfirm" parameterType="bill" >
+update bill
+<set>
+complete=true,
+completetime=#{completetime},
+arriveaddress=#{arriveaddress}
+</set>
+where trackingID = #{trackingID}
+</update>
+</mapper>
